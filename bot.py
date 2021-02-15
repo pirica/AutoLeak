@@ -1,6 +1,6 @@
 """
 Commons Clause - License Condition v1.0
-Copyright Fevers 2021
+Copyright fevers 2020
 The Software is provided to you by the Licensor under the
 License, as defined below, subject to the following condition.
 Without limiting other conditions in the License, the grant
@@ -724,44 +724,48 @@ def generate_cosmetics():
         print(f"IMAGE GENERATING COMPLETE - Generated images in {round(end - start, 2)} seconds")
         print("!  !  !  !  !  !  !")
                       
-    print('\nDo you want to merge all of these images? - y/n')
-    ask = input()
-    if ask == 'y':
-        print('\nMerging images...')
-        images = [file for file in listdir('icons')]
-        count = int(round(math.sqrt(len(images)+0.5), 0))
-        #print(len(images), count)
-        x = len(images)
-        print(f'\nFound {x} images in "Icons" folder.')
-        finalImg = Image.new("RGBA", (512*count, 512*count))
-        #draw = ImageDraw.Draw(finalImg)
-        x = 0
-        y = 0
-        counter = 0
-        for img in images:
-            tImg = Image.open(f"icons/{img}")
-            if counter >= count:
-                y += 512
-                x = 0
-                counter = 0
-            finalImg.paste(tImg, (x, y), tImg)
-            x += 512
-            counter += 1
-        finalImg.show()
-        finalImg.save(f'merged/MERGED {x}.png')
-        print('\nSaved image!')
-        print('\nTweeting out image....')
-        print('What text do you want the Tweet to say?')
-        text = input()
-        try:
-            api.update_with_media(f'merged/MERGED {x}.png', f'[AUTOLEAK] {text}')
-        except:
-            print(Fore.RED + 'File size is too big.')
-            time.sleep(5)
-        print('\nTweeted image successfully!')
-            
-    else:
-        print(Fore.RED + '\nNot merging images.')
+    print('\nMerging images...')
+    r = requests.get('https://i.ibb.co/tcHs6J7/placeholder.png', allow_redirects=True)
+    open('icons/z.png', 'wb').write(r.content)
+    images = [file for file in listdir('icons')]
+    count = int(round(math.sqrt(len(images)+0.5), 0))
+    #print(len(images), count)
+    x = len(images) - 1
+    print(f'\nFound {x} images in "Icons" folder.')
+    finalImg = Image.new("RGBA", (512*count, 512*count))
+    #draw = ImageDraw.Draw(finalImg)
+    x = 0
+    y = 0
+    counter = 0
+    for img in images:
+        tImg = Image.open(f"icons/{img}")
+        if counter >= count:
+            y += 512
+            x = 0
+            counter = 0
+        finalImg.paste(tImg, (x, y), tImg)
+        x += 512
+        counter += 1
+    finalImg.show()
+    finalImg.save(f'merged/MERGED {x}.png')
+    response = requests.get('https://benbotfn.tk/api/v1/status')
+    version = response.json()['currentFortniteVersionNumber']
+    #print(x)
+    print('\nSaved image!')
+    print('\nTweeting out image....')
+    try:
+        api.update_with_media(f'merged/MERGED {x}.png', f'[AUTOLEAK] Found {x} Leaked cosmetics from Patch {version}.')
+    except:
+        print(Fore.YELLOW + '\nFile size is too big, compressing image.')
+        foo = Image.open(f'merged/MERGED {x}.png')
+        x, y = foo.size
+        x2, y2 = math.floor(x/2), math.floor(y/2)
+        foo = foo.resize((x2,y2),Image.ANTIALIAS)
+        foo.save(f'merged/MERGED {x}.png',quality=65)
+        print(Fore.GREEN + 'Compressed!')
+        api.update_with_media(f'merged/MERGED {x}.png', f'[AUTOLEAK] Found {x} Leaked cosmetics from Patch {version}.')
+        time.sleep(5)
+    print(Fore.GREEN + '\nTweeted image successfully!')
 
 def check_version():
     response = requests.get('https://pastebin.com/raw/zku0yz9q')
@@ -1513,6 +1517,8 @@ def dynamic_pak():
     print(f"IMAGE GENERATING COMPLETE - Generated images in {round(end - start, 2)} seconds")
     print("!  !  !  !  !  !  !")
     print('\nMerging images...')
+    r = requests.get('https://i.ibb.co/tcHs6J7/placeholder.png', allow_redirects=True)
+    open('icons/z.png', 'wb').write(r.content)
     images = [file for file in listdir('icons')]
     count = int(round(math.sqrt(len(images)+0.5), 0))
     #print(len(images), count)
@@ -1543,17 +1549,88 @@ def dynamic_pak():
             api.update_with_media(f'merged/Pak {ask} Merged.png', f'[AUTOLEAK] Found {len(data)} items in Pak {ask}:')
         except:
             print(Fore.YELLOW + '\nFile size is too big, compressing image.')
-            foo = Image.open(f'merged/MERGED {x}.png')
+            foo = Image.open(f'merged/Pak {ask} Merged.png')
             x, y = foo.size
             x2, y2 = math.floor(x/2), math.floor(y/2)
             foo = foo.resize((x2,y2),Image.ANTIALIAS)
             foo.save(f'merged/MERGED {x}.png',quality=65)
             print(Fore.GREEN + 'Compressed!')
-            api.update_with_media(f'merged/Pak {ask} Merged.png', f'[AUTOLEAK] Found {len(data)} items in Pakchunk {ask}:')
+            api.update_with_media(f'merged/MERGED {x}.png', f'[AUTOLEAK] Found {len(data)} items in Pakchunk {ask}:')
             time.sleep(5)
         print('\nTweeted image successfully!')
     else:
         print(Fore.RED + 'Not Tweeting.')
+
+def notices():
+    count = 1
+    response = requests.get('https://fn-api.com/api/emergencynotice')
+    apiurl = 'https://fn-api.com/api/emergencynotice'
+    
+    response = requests.get(apiurl)
+    noticesData = response.json()['messages']
+
+    while 1:
+        response = requests.get(apiurl)
+        if response:
+            noticesDataLoop = response.json()['messages']
+            print("Checking for change in Notices... ("+str(count)+")")
+            count = count + 1
+            response = requests.get(apiurl)
+
+            if noticesData != noticesDataLoop:
+                
+                print(f"A new notice has changed/been added at {current_time}...")
+                message = response.json()['messages']
+                twme = ''
+                try:
+                    for i in message:
+                        title = i['title']
+                        body = i['body']
+                        x = len(message)
+                        print(f'\nMessage {x}:\n{title}\n{body}\n')
+                        tw2 = i
+                        twme = f'\n{title}\n{body}\n'
+                except:
+                    print('Could not grab')
+                print('\nTweeting current notices...')
+                api.update_status(f'New #Fortnite notice:\n {twme}')
+                print('\nDone!')
+
+        else:
+            print("FAILED TO GRAB NOTICES DATA: URL DOWN")
+
+        time.sleep(BotDelay)
+
+def staging_servers():
+    count = 1
+    response = requests.get('https://api.peely.de/v1/staging')
+    apiurl = 'https://api.peely.de/v1/staging'
+    
+    response = requests.get(apiurl)
+    stagingData = response.json()['data']['staging']
+
+    while 1:
+        response = requests.get(apiurl)
+        if response:
+            stagingDataLoop = response.json()['data']['staging']
+            print("Checking for change in Staging Servers... ("+str(count)+")")
+            count = count + 1
+            response = requests.get(apiurl)
+
+            if stagingData != stagingDataLoop:
+                
+                print(f"The staging servers have been changed at {current_time}...")
+
+                staging = response.json()['data']['staging']
+                print(f'\nThe staging servers are on {staging}.')
+                print('\nTweeting the current staging servers.')
+                api = tweepy.API(auth)
+                api.update_status('#Fortnite Version Uptate:\n\nPatch v'+str(staging)+' has been added to the pre-release staging servers. Epic is currently testing this update version, and will most likely release within the upcoming week(s).')
+                print('\nSuccesfully tweeted the staging servers.')
+        else:
+            print("FAILED TO GRAB STAGING SERVERS DATA: URL DOWN")
+
+        time.sleep(BotDelay)
 
 print(Fore.GREEN + "\n- - - - - MENU - - - - -")
 print("")
@@ -1568,6 +1645,8 @@ print("(8) - Merge images in icons folder")
 print("(9) - Check for a change in Shop Sections")
 print("(10) - Check for a change in Item Shop")
 print("(11) - Grab all cosmetics from a specific pak")
+print("(12) - Checks for a change in notices")
+print("(13) - Checks for a change in staging servers")
 print("")
 option_choice = input(">> ")
 if option_choice == "1":
@@ -1592,6 +1671,10 @@ elif option_choice == "10":
     shop()
 elif option_choice == "11":
     dynamic_pak()
+elif option_choice == "12":
+    notices()
+elif option_choice == "13":
+    staging_servers()
 else:
     print("Please enter a number between 1 and 10")
 
@@ -1619,6 +1702,6 @@ else:
 # picture = Picture(app, image="assets/Images/general-options.png")
 # label = Text(app, text="COMING SOON", color='white')
 # label = Text(app, text="")
-# label = Text(app, size=10, text="Developed by @Fevers#3474", color='white')
+# label = Text(app, size=10, text="Developed by @thomaskeig#0001", color='white')
 #
 # app.display()
